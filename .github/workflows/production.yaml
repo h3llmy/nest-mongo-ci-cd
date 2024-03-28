@@ -37,16 +37,20 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install --production
+        run: npm install --omit=dev
 
       - name: Install Nest.js CLI
         run: npm install --save-dev @nestjs/cli
+
+      - name: Load .env file
+        run: npm install -g dotenv-cli && dotenv -e .env npm run build
 
       - name: Build
         run: npm run build
 
       - name: Deploy
         run: npm run start:prod
+
       - name: Check deployment status
         if: ${{ needs.build.result == 'success' }}
         run: echo "Deployment successful"
