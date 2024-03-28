@@ -36,11 +36,11 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Nest Js
-        uses: npm install nest-cli
-
       - name: Install dependencies
         run: npm install --production
+
+      - name: Install Nest.js CLI
+        run: npm install --save-dev @nestjs/cli
 
       - name: Build
         run: npm run build
