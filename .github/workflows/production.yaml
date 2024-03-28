@@ -34,7 +34,10 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '18'
+
+      - name: Install Nest Js
+        uses: npm install nest-cli
 
       - name: Install dependencies
         run: npm install --production
