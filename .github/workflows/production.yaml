@@ -10,6 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          PORT: 3000
+          MONGO_URI: mongodb+srv://harumi:ugus8vNNDiYXKTEl@tugasakhir.snyha6o.mongodb.net/nestjs
+
+          ACCESS_TOKEN_SECRET: '04bb260e4f4506d4e28eefa334bf03cd391ca0a803ad582b88dd05ca306b7f8e9f32a5584d1aa410317ee3f35fe59da05b3002af9a3e41d325767f9ccd0dcf38'
+          REFRESH_TOKEN_SECRET: 'd2be32ac2c88ef8ae9aa92878a39ecb36f394ecf07473fda78419410e01a0ed480a9317309f4252c1293f68f432427e66ee30f4951049f9ac609583803e69b02'
+
+          MAILER_HOST: 'stmp.gmail.com'
+          MAILER_SERVICE: 'gmail'
+          MAILER_PORT: 587
+          MAILER_USERNAME: 'helmytrisna86@gmail.com'
+          MAILER_PASSWORD: 'jgslouywzglhfipm'
+          MAILER_FROM_ADDRESS: 'test@gmail.com'
+          file_name: .env
+
       - name: Checkout code
         uses: actions/checkout@v2
 
