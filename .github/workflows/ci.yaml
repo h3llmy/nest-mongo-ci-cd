@@ -1,12 +1,13 @@
 name: ci the api
 
 on:
-  push:
-    branches-ignore:
+  pull_request:
+    branches:
       - master
+    types: [opened, reopened, synchronize]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +25,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Check for test failures
-        if: failure()
-        run: |
-          echo "⚠️ Tests failed. Blocking merge to the branch."
-          exit 1
