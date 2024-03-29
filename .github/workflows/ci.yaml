@@ -26,10 +26,22 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Set status check
-        if: always()
-        uses: mikepenz/action-github-status@v1
+      - name: Check for test failures
+        if: failure() # Run only if a previous step has failed
+        run: |
+          echo "⚠️ Tests failed. Blocking pull request merge."
+          echo "::set-output name=fail-message::⚠️ Tests failed."
+
+      - name: Create status check failure
+        if: failure() # Create a status check failure only if tests failed
+        uses: actions/github-script@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          state: ${{ job.status }} # Set the status based on the job status
-          description: This PR must pass tests before it can be merged
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ steps.check-for-test-failures.outputs.fail-message }}'
+            })
+            github.actions.setFailed('Tests failed')
