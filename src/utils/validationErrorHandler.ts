@@ -15,7 +15,7 @@ export class ValidationErrorHandler extends ValidationPipe {
       whitelist: true,
       exceptionFactory: (error: ValidationError[]) => {
         // Construct error response object
-        let errorResponse = {
+        const errorResponse = {
           message: 'Error Validation',
           error: {},
         };
