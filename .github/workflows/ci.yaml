@@ -1,12 +1,13 @@
 name: ci the api
 
 on:
-  push:
-    branches-ignore:
+  pull_request:
+    branches:
       - master
+    types: [opened, reopened, synchronize]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,8 +26,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Check for test failures
-        if: failure()
-        run: |
-          echo "⚠️ Tests failed. Blocking merge to the branch."
-          exit 1  # Exit with a non-zero status code to fail the jo
+      - name: Set status check
+        if: always()
+        uses: mikepenz/action-github-status@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          state: ${{ job.status }} # Set the status based on the job status
+          description: This PR must pass tests before it can be merged
