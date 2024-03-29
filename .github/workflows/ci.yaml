@@ -26,12 +26,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Check for test failures
-        if: failure() # Run only if a previous step has failed
-        run: |
-          echo "⚠️ Tests failed. Blocking pull request merge."
-          echo "::set-output name=fail-message::⚠️ Tests failed."
-
       - name: Create status check failure
         if: failure() # Create a status check failure only if tests failed
         uses: actions/github-script@v4
