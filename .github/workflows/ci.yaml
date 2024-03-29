@@ -25,17 +25,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Create status check failure
-        if: failure() # Create a status check failure only if tests failed
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '${{ steps.check-for-test-failures.outputs.fail-message }}'
-            })
-            github.actions.setFailed('Tests failed')
