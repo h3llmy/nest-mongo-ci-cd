@@ -10,20 +10,35 @@ describe('UserService', () => {
   let service: UserService;
   let model: Model<User>;
 
+  const mockUserService = {
+    create: jest.fn(),
+    findOne: jest.fn(),
+    findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+    findByIdAndDelete: jest.fn(),
+    aggregate: jest.fn(),
+  };
+
+  const userDto: CreateUserDto = {
+    username: faker.internet.userName(),
+    password: faker.internet.password(),
+    email: faker.internet.email(),
+    role: faker.helpers.enumValue(UserRole),
+  };
+  const mockUser = {
+    ...userDto,
+    _id: new mongoose.Types.ObjectId(),
+    createdAt: new Date(),
+    isActive: true,
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
         {
           provide: getModelToken(User.name),
-          useValue: {
-            create: jest.fn(),
-            findOne: jest.fn(),
-            findById: jest.fn(),
-            findByIdAndUpdate: jest.fn(),
-            findByIdAndDelete: jest.fn(),
-            aggregate: jest.fn(),
-          },
+          useValue: mockUserService,
         },
       ],
     }).compile();
@@ -34,27 +49,16 @@ describe('UserService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+    expect(model).toBeDefined();
   });
 
   describe('create', () => {
     it('should create a user', async () => {
-      const userDto: CreateUserDto = {
-        username: faker.internet.userName(),
-        password: faker.internet.password(),
-        email: faker.internet.email(),
-        role: faker.helpers.enumValue(UserRole),
-      };
-      const createdUser = {
-        ...userDto,
-        _id: new mongoose.Types.ObjectId(),
-        createdAt: new Date(),
-        isActive: true,
-      };
-      jest.spyOn(model, 'create').mockResolvedValueOnce(createdUser as any);
+      jest.spyOn(model, 'create').mockResolvedValueOnce(mockUser as any);
 
       const result = await service.create(userDto);
 
-      expect(result).toEqual(createdUser);
+      expect(result).toEqual(mockUser);
     });
   });
 
@@ -64,13 +68,9 @@ describe('UserService', () => {
       const limit = 10;
       const expectedResult = {
         currentPage: page,
-        totalPages: 3,
-        data: [
-          {
-            /* User data */
-          },
-        ],
-        totalItems: 30,
+        totalPages: 1,
+        data: [mockUser],
+        totalItems: 1,
       };
       jest.spyOn(model, 'aggregate').mockResolvedValueOnce([expectedResult]);
 
@@ -80,17 +80,15 @@ describe('UserService', () => {
     });
   });
 
-  // describe('findById', () => {
-  //   it('should find a user by ID', async () => {
-  //     const userId = 'someId';
-  //     const foundUser = { /* User data */ };
-  //     jest.spyOn(model, 'findOne').mockResolvedValueOnce(foundUser as any);
+  describe('findById', () => {
+    it('should find a user by ID', async () => {
+      jest.spyOn(model, 'findById').mockResolvedValueOnce(mockUser);
 
-  //     const result = await service.findById(userId);
+      const result = await service.findById(mockUser._id as any);
 
-  //     expect(result).toEqual(foundUser);
-  //   });
-  // });
+      expect(result).toEqual(mockUser);
+    });
+  });
 
   // describe('update', () => {
   //   it('should update a user by ID', async () => {

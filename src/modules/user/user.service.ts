@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,6 +10,8 @@ import { User } from './entities/user.entity';
  */
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
@@ -27,6 +29,7 @@ export class UserService {
       role,
     });
     delete data.password;
+    this.logger.log(`create user ${JSON.stringify(data)}`);
     return data;
   }
 
@@ -70,6 +73,8 @@ export class UserService {
     const totalPages = isNaN(result.totalItems)
       ? 1
       : Math.ceil(result.totalItems / limit);
+
+    this.logger.log(`get user pagination`);
 
     return { currentPage: page, totalPages, ...result };
   }

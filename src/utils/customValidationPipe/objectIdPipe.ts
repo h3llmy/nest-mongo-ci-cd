@@ -15,9 +15,7 @@ export interface IParseObjectIdPipe {
  */
 @Injectable()
 export class ParseObjectIdPipe implements PipeTransform<any, Types.ObjectId> {
-  constructor(@Optional() protected readonly option?: IParseObjectIdPipe) {
-    option = option ?? {};
-  }
+  constructor(@Optional() protected readonly option: IParseObjectIdPipe = {}) {}
   /**
    * Transforms the input value to a MongoDB ObjectId.
    * @param value - The value to be transformed.

@@ -13,7 +13,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.setGlobalPrefix(routePrefix);
 
+  app.useBodyParser('json');
   app.use(helmet());
+  app.enableCors();
 
   const { httpAdapter } = app.get(HttpAdapterHost);
 
