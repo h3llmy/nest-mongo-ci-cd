@@ -13,7 +13,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Permission } from '../../utils/decorator/permission.decorator';
-import { UserRole } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { ObjectId } from 'mongoose';
 import { ParseObjectIdPipe } from 'src/utils/customValidationPipe/objectIdPipe';
 import { Auth } from 'src/utils/decorator/user.decorator';
@@ -25,13 +25,13 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  // @Permission(UserRole.ADMIN)
+  @Permission(UserRole.ADMIN)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  @Permission(UserRole.USER, UserRole.ADMIN)
+  // @Permission(UserRole.USER, UserRole.ADMIN)
   @ApiHeader({
     name: 'Authorization',
     description: 'for user and admin',
@@ -63,7 +63,8 @@ export class UserController {
     description: 'for admin only',
     required: true,
   })
-  profileDetail(@Auth() user: any) {
+  profileDetail(@Auth() user: User) {
+    delete user.password;
     return user;
   }
 

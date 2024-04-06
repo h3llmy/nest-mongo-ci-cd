@@ -1,4 +1,12 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Put,
+  Param,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -9,7 +17,8 @@ import {
   ApiUnprocessableEntityResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { MailService } from 'src/modules/mail/mail.service';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Controller responsible for handling authentication-related requests.
@@ -19,7 +28,8 @@ import { MailService } from 'src/modules/mail/mail.service';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly mailService: MailService,
+    private readonly mailerService: MailerService,
+    private readonly config: ConfigService,
   ) {}
 
   /**
@@ -170,6 +180,21 @@ export class AuthController {
     },
   })
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+    const registerToken = await this.authService.register(registerDto);
+    this.mailerService.sendMail({
+      to: registerDto.email,
+      subject: 'register user',
+      template: 'register',
+      context: {
+        registerToken,
+      },
+    });
+    return { message: 'register success' };
+  }
+
+  @Put('verification/:token')
+  async verificationEmail(@Param('token') token: string) {
+    const redirectUrlPrefix: string = this.config.get<string>('REGISTER_URL');
+    return token;
   }
 }

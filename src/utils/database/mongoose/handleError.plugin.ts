@@ -27,7 +27,7 @@ export default function handleError(schema: Schema<Document>): void {
           // Construct validation error object with error messages
           const validationError = {};
           errorKeys.forEach((key) => {
-            validationError[key] = [`${key} must be unique`];
+            validationError[key] = [`${key} already taken`];
           });
           const errorMessage = {
             message: 'Error Validation',

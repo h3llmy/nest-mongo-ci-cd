@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { ConfigService } from '@nestjs/config';
 import { RegisterDto } from './dto/register.dto';
 import { UserRole } from '../user/entities/user.entity';
 import { ObjectId } from 'mongoose';
 import { EncryptionService } from '../common/encryption.service';
+import { AuthTokenService } from './authToken.service';
 
 export enum JwtType {
   LOGIN = 'login',
+  REGISTER = 'register',
 }
 
 /**
@@ -23,16 +23,20 @@ export interface ILoginTokenPayload {
   type: JwtType;
 }
 
+export interface ILoginTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 /**
  * Service responsible for authentication-related operations.
  */
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly config: ConfigService,
     private readonly encryption: EncryptionService,
+    private readonly authTokenService: AuthTokenService,
   ) {}
 
   /**
@@ -41,10 +45,14 @@ export class AuthService {
    * @returns Object containing access and refresh tokens.
    * @throws NotFoundException if user with provided username is not found.
    */
-  async login({ username, password }: LoginDto) {
+  async login({ username, password }: LoginDto): Promise<ILoginTokenResponse> {
     const userCheck = await this.userService
       .findByUsername(username)
       .orFail(new BadRequestException('User not found'));
+
+    if (userCheck.isVerified === false) {
+      throw new BadRequestException('user is not verified');
+    }
 
     const isPasswordMatch = await this.encryption.compare(
       password,
@@ -62,7 +70,7 @@ export class AuthService {
       type: JwtType.LOGIN,
     };
 
-    return this.createLoginToken(tokenPayload);
+    return this.authTokenService.createLoginToken(tokenPayload);
   }
 
   /**
@@ -70,7 +78,12 @@ export class AuthService {
    * @param registerDto - Object containing registration details.
    * @returns Object containing access and refresh tokens.
    */
-  async register({ email, password, username, confirmPassword }: RegisterDto) {
+  async register({
+    email,
+    password,
+    username,
+    confirmPassword,
+  }: RegisterDto): Promise<string> {
     if (password !== confirmPassword) {
       throw new BadRequestException('password and confirm password not match');
     }
@@ -86,23 +99,8 @@ export class AuthService {
       username: user.username,
       email: user.email,
       role: user.role,
-      type: JwtType.LOGIN,
+      type: JwtType.REGISTER,
     };
-    return this.createLoginToken(tokenPayload);
-  }
-
-  /**
-   * Creates access and refresh tokens based on provided token payload.
-   * @param tokenPayload - Payload to be signed into the token.
-   * @returns Object containing access and refresh tokens.
-   */
-  createLoginToken(tokenPayload: ILoginTokenPayload) {
-    const accessToken = this.jwtService.sign(tokenPayload, {
-      secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
-    });
-    const refreshToken = this.jwtService.sign(tokenPayload, {
-      secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
-    });
-    return { accessToken, refreshToken };
+    return this.authTokenService.createRegisterToken(tokenPayload);
   }
 }
