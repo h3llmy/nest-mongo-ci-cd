@@ -15,7 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Permission } from '../../utils/decorator/permission.decorator';
 import { User, UserRole } from './entities/user.entity';
 import { ObjectId } from 'mongoose';
-import { ParseObjectIdPipe } from 'src/utils/customValidationPipe/objectIdPipe';
+import { ParseObjectIdPipe } from 'src/utils/customValidationPipe/parseObjectIdPipe';
 import { Auth } from 'src/utils/decorator/user.decorator';
 import { ApiHeader, ApiQuery, ApiTags } from '@nestjs/swagger';
 
@@ -31,7 +31,7 @@ export class UserController {
   }
 
   @Get()
-  // @Permission(UserRole.USER, UserRole.ADMIN)
+  @Permission(UserRole.USER, UserRole.ADMIN)
   @ApiHeader({
     name: 'Authorization',
     description: 'for user and admin',
@@ -78,7 +78,7 @@ export class UserController {
     @Param('id', ParseObjectIdPipe) id: ObjectId,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.update(id, updateUserDto);
+    return this.userService.updateById(id, updateUserDto);
   }
 
   @Delete(':id')

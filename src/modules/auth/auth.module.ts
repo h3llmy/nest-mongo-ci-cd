@@ -8,7 +8,6 @@ import { JwtStrategies } from './strategies/jwt.strategies';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { PermissionsGuard } from './guard/permissions.guard';
-import { AuthTokenService } from './authToken.service';
 
 @Module({
   imports: [PassportModule.register({ defaultStrategy: 'jwt' }), UserModule],
@@ -17,7 +16,6 @@ import { AuthTokenService } from './authToken.service';
     AuthService,
     JwtService,
     JwtStrategies,
-    AuthTokenService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

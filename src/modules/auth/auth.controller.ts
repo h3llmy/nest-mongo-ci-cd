@@ -19,6 +19,9 @@ import {
 } from '@nestjs/swagger';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { ForgetPasswordDto } from './dto/forgetPassword.dto';
+import { Permission } from 'src/utils/decorator/permission.decorator';
+import { UserRole } from '../user/entities/user.entity';
 
 /**
  * Controller responsible for handling authentication-related requests.
@@ -26,11 +29,7 @@ import { ConfigService } from '@nestjs/config';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly mailerService: MailerService,
-    private readonly config: ConfigService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * Endpoint for user login.
@@ -180,21 +179,51 @@ export class AuthController {
     },
   })
   async register(@Body() registerDto: RegisterDto) {
-    const registerToken = await this.authService.register(registerDto);
-    this.mailerService.sendMail({
-      to: registerDto.email,
-      subject: 'register user',
-      template: 'register',
-      context: {
-        registerToken,
-      },
-    });
+    await this.authService.register(registerDto);
     return { message: 'register success' };
   }
 
-  @Put('verification/:token')
+  /**
+   * Endpoint to verify user's email.
+   * @param token - Token sent to user's email for verification.
+   * @returns Success message if email verification is successful.
+   */
+  @Put('email-verification/:token')
+  @ApiOperation({ summary: 'Verify user email' })
+  @ApiOkResponse({
+    description: 'User email verified successfully.',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      example: {
+        message: 'User email verified successfully.',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid token',
+    schema: {
+      type: 'object',
+      properties: {
+        error: { type: 'string' },
+        message: { type: 'string' },
+      },
+      example: {
+        error: 'Bad Request',
+        message: 'invalid token',
+      },
+    },
+  })
   async verificationEmail(@Param('token') token: string) {
-    const redirectUrlPrefix: string = this.config.get<string>('REGISTER_URL');
-    return token;
+    await this.authService.verifyEmail(token);
+    return { message: 'User email verified successfully.' };
+  }
+
+  @Permission(UserRole.USER)
+  @Post('forget-password')
+  forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
+    return forgetPasswordDto;
   }
 }

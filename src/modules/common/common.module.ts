@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ParseObjectIdPipe } from 'src/utils/customValidationPipe/objectIdPipe';
+import { ParseObjectIdPipe } from 'src/utils/customValidationPipe/parseObjectIdPipe';
 import handleError from 'src/utils/database/mongoose/handleError.plugin';
 import { EncryptionService } from './encryption.service';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -44,7 +44,7 @@ import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
           adapter: new EjsAdapter(),
           dir: './templates/email',
           options: {
-            strict: true,
+            strict: false,
           },
         },
       }),

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { FilterQuery, Model, ObjectId, UpdateQuery } from 'mongoose';
 import { User } from './entities/user.entity';
 
 /**
@@ -89,6 +89,15 @@ export class UserService {
   }
 
   /**
+   * Find a user based on the provided filter.
+   * @param filter - The filter query to match against users.
+   * @returns The user that matches the filter query.
+   */
+  findOne(filter: FilterQuery<User>) {
+    return this.userModel.findOne(filter);
+  }
+
+  /**
    * Finds a user by username.
    * @param username - Username of the user.
    * @returns User document.
@@ -98,12 +107,31 @@ export class UserService {
   }
 
   /**
+   * Finds a user by username.
+   * @param email - email of the user.
+   * @returns User document.
+   */
+  findByEmail(email: string) {
+    return this.userModel.findOne({ email });
+  }
+
+  /**
+   * Update a user based on the provided filter with the provided update data.
+   * @param filter - The filter query to match against users.
+   * @param updatedUserData - The data to update the user with.
+   * @returns The updated user.
+   */
+  update(filter: FilterQuery<User>, updatedUserData: UpdateQuery<User>) {
+    return this.userModel.findOneAndUpdate(filter, updatedUserData);
+  }
+
+  /**
    * Updates a user by ID.
    * @param id - ID of the user.
    * @param updateUserDto - Data to update the user.
    * @returns Updated user document.
    */
-  update(id: ObjectId, updateUserDto: UpdateUserDto) {
+  updateById(id: ObjectId, updateUserDto: UpdateQuery<User>) {
     return this.userModel.findByIdAndUpdate(id, updateUserDto);
   }
 
