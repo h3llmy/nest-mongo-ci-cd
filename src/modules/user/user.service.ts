@@ -1,6 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, ObjectId, UpdateQuery } from 'mongoose';
 import { User } from './entities/user.entity';
@@ -112,7 +116,9 @@ export class UserService {
    * @returns User document.
    */
   findByEmail(email: string) {
-    return this.userModel.findOne({ email });
+    return this.userModel
+      .findOne({ email })
+      .orFail(new NotFoundException('user not found'));
   }
 
   /**

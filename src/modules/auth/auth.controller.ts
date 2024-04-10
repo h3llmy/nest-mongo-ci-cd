@@ -16,12 +16,10 @@ import {
   ApiBadRequestResponse,
   ApiUnprocessableEntityResponse,
   ApiOperation,
+  ApiNotFoundResponse,
+  ApiCreatedResponse,
 } from '@nestjs/swagger';
-import { MailerService } from '@nestjs-modules/mailer';
-import { ConfigService } from '@nestjs/config';
 import { ForgetPasswordDto } from './dto/forgetPassword.dto';
-import { Permission } from 'src/utils/decorator/permission.decorator';
-import { UserRole } from '../user/entities/user.entity';
 
 /**
  * Controller responsible for handling authentication-related requests.
@@ -112,7 +110,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'register new user account' })
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     description: 'User registered successfully.',
     schema: {
       properties: {
@@ -221,9 +219,51 @@ export class AuthController {
     return { message: 'User email verified successfully.' };
   }
 
-  @Permission(UserRole.USER)
+  /**
+   * Request to reset password for a user.
+   * @param forgetPasswordDto - DTO containing user's email for password reset.
+   * @returns Success message if the email is sent successfully.
+   */
   @Post('forget-password')
+  @ApiOperation({ summary: 'Request to reset password' })
+  @ApiOkResponse({
+    description: 'Email sent successfully.',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      example: {
+        message: 'Email has been sent.',
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid User Account.',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      example: {
+        message: 'user is not active',
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User Not Found',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+      },
+      example: {
+        message: 'user not found',
+      },
+    },
+  })
   forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
-    return forgetPasswordDto;
+    this.authService.forgetPassword(forgetPasswordDto.email);
+    return { message: 'Email has been sent.' };
   }
 }

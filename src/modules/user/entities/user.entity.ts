@@ -21,6 +21,9 @@ export class User extends Document {
   @Prop({ enum: UserRole, required: true })
   role: UserRole;
 
+  @Prop({ type: String })
+  otp: string;
+
   @Prop({ type: Boolean, default: false })
   isVerified: boolean;
 
@@ -35,17 +38,20 @@ UserSchema.pre(
   async function (next: CallbackWithoutResultAndOptionalError) {
     const user = this as User;
 
-    if (!user.isModified('password')) {
-      return next();
-    }
-
     try {
-      const encryption = new EncryptionService();
-      const hashedPassword = await encryption.hash(user.password);
-      user.password = hashedPassword;
+      const fieldsToHash = ['password', 'otp'];
+
+      for (const field of fieldsToHash) {
+        if (user.isModified(field)) {
+          const encryption = new EncryptionService();
+          const hashedValue = await encryption.hash(user[field]);
+          user[field] = hashedValue;
+        }
+      }
+
       next();
     } catch (error) {
-      return next(error);
+      next(error);
     }
   },
 );

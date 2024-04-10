@@ -6,6 +6,7 @@ import handleError from 'src/utils/database/mongoose/handleError.plugin';
 import { EncryptionService } from './encryption.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { RandomService } from './random.service';
 
 @Global()
 @Module({
@@ -50,7 +51,7 @@ import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
       }),
     }),
   ],
-  providers: [ParseObjectIdPipe, EncryptionService],
-  exports: [ParseObjectIdPipe, EncryptionService],
+  providers: [ParseObjectIdPipe, EncryptionService, RandomService],
+  exports: [ParseObjectIdPipe, EncryptionService, RandomService],
 })
 export class CommonModule {}

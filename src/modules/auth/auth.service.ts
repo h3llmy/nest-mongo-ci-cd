@@ -8,6 +8,7 @@ import { EncryptionService } from '../common/encryption.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
+import { RandomService } from '../common/random.service';
 
 export enum JwtType {
   LOGIN = 'login',
@@ -48,6 +49,7 @@ export class AuthService {
     protected readonly jwtService: JwtService,
     protected readonly config: ConfigService,
     protected readonly mailerService: MailerService,
+    protected readonly randomService: RandomService,
   ) {
     this.ACCESS_TOKEN_SECRET = config.get<string>('ACCESS_TOKEN_SECRET');
     this.REFRESH_TOKEN_SECRET = config.get<string>('REFRESH_TOKEN_SECRET');

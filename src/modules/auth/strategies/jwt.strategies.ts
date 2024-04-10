@@ -29,8 +29,6 @@ export class JwtStrategies extends PassportStrategy(Strategy, 'jwt') {
    * @throws UnauthorizedException if the token is invalid.
    */
   async validate(payload: ILoginTokenPayload) {
-    console.log(payload);
-
     // Validate the user based on the payload data
     const userCheck = await this.userService
       .findById(payload.id)
